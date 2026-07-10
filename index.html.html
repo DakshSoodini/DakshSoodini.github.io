@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daksh Soodini — Smart Irrigation · AI · Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & VARS ── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --white:#FAFAF8;--off:#F2F0EB;--border:#E0DDD6;
+  --ink:#111110;--ink2:#444440;--ink3:#888884;
+  --green:#1C4A2A;--green-mid:#2E7D4F;--green-light:#D6EAD8;--green-pale:#EEF6EF;
+  --water:#1A3F5C;--water-light:#D4E8F5;
+  --amber:#7A4A1A;--amber-light:#F5E8D4;
+  --purple:#5A3A8A;--purple-light:#F3EDFC;
+}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 3.5rem;height:64px;
+  background:rgba(250,250,248,0.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--ink);text-decoration:none;letter-spacing:0.04em;cursor:pointer}
+.nav-brand span{color:var(--green-mid)}
+.nav-tabs{display:flex;gap:0;list-style:none}
+.nav-tab{
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.08em;
+  color:var(--ink3);text-transform:uppercase;cursor:pointer;
+  padding:0 1.6rem;height:64px;display:flex;align-items:center;
+  border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;
+  user-select:none;
+}
+.nav-tab:hover{color:var(--ink2)}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── SHARED TYPOGRAPHY ── */
+.section{padding:5.5rem 0;max-width:1160px;margin:0 auto;padding-left:3.5rem;padding-right:3.5rem}
+.section-divider{width:100%;height:1px;background:var(--border)}
+.mono-label{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:3rem;
+  display:flex;align-items:center;gap:0.8rem;
+}
+.mono-label::after{content:'';height:1px;width:48px;background:var(--border)}
+h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:400;color:var(--ink);line-height:1.2;margin-bottom:1.5rem}
+h2 em{font-style:italic;color:var(--green)}
+
+/* ── SHARED COMPONENTS ── */
+.tag{display:inline-block;padding:3px 10px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.06em;border:1px solid}
+.tag-green{color:var(--green);border-color:rgba(46,125,79,0.3);background:var(--green-pale)}
+.tag-water{color:var(--water);border-color:rgba(26,63,92,0.3);background:var(--water-light)}
+.tag-amber{color:var(--amber);border-color:rgba(122,74,26,0.3);background:var(--amber-light)}
+.tag-self{color:var(--purple);border-color:rgba(90,58,138,0.3);background:var(--purple-light)}
+
+.stats-band{background:var(--ink);color:var(--white);display:grid;grid-template-columns:repeat(4,1fr)}
+.stat-cell{padding:3rem 2.5rem;text-align:center;border-right:1px solid rgba(255,255,255,0.07)}
+.stat-cell:last-child{border-right:none}
+.stat-big{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--off);display:block;line-height:1;margin-bottom:0.5rem}
+.stat-desc{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
+
+footer{border-top:1px solid var(--border);padding:2.5rem 3.5rem;display:flex;justify-content:space-between;align-items:center}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--ink3)}
+.footer-tabs-nav{display:flex;gap:2rem;list-style:none}
+.footer-tabs-nav span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);cursor:pointer}
+.footer-tabs-nav span:hover{color:var(--green)}
+.footer-copy{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:0.06em}
+
+/* ── REVEAL ANIMATION ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.vis{opacity:1;transform:none}
+.d1{transition-delay:0.1s}.d2{transition-delay:0.2s}.d3{transition-delay:0.3s}.d4{transition-delay:0.4s}
+
+/* ════════════════════════════════
+   TAB 1 — HOME
+════════════════════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:7rem 2rem 5rem}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--green-mid);margin-bottom:2rem;display:flex;align-items:center;gap:1rem}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:40px;height:1px;background:var(--green-mid);opacity:0.4}
+.hero-pani-top{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.4em;text-transform:uppercase;color:var(--ink3);margin-bottom:0.4rem}
+.hero-pani-word{font-family:'Cormorant Garamond',serif;font-size:clamp(6rem,14vw,11rem);font-weight:300;color:var(--ink);line-height:0.9;letter-spacing:-0.02em;margin-bottom:0.6rem}
+.hero-pani-sub{font-size:0.95rem;color:var(--ink3);font-weight:300;margin-bottom:3.5rem;border-top:1px solid var(--border);padding-top:1.4rem;max-width:480px}
+.hero-pani-sub em{font-style:normal;font-family:'DM Mono',monospace;font-size:0.85rem}
+.pani-pills{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:3.5rem}
+.pani-pill{display:flex;align-items:center;gap:0.6rem;border:1px solid var(--border);padding:0.5rem 1rem;background:var(--white);font-size:13px;color:var(--ink2);transition:border-color 0.2s,background 0.2s;cursor:default}
+.pani-pill:hover{border-color:var(--green-mid);background:var(--green-pale)}
+.pani-letter{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--green);width:22px;text-align:center}
+.scroll-cue{display:flex;flex-direction:column;align-items:center;gap:0.5rem;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-top:1rem;cursor:pointer}
+.scroll-cue-line{width:1px;height:40px;background:var(--border);animation:pulse-line 2s ease-in-out infinite}
+@keyframes pulse-line{0%,100%{opacity:0.3;transform:scaleY(0.6)}50%{opacity:1;transform:scaleY(1)}}
+
+.about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:5rem;align-items:start}
+.about-text p{color:var(--ink2);font-size:1rem;line-height:1.75;margin-bottom:1.1rem;font-weight:300}
+.about-card{background:var(--off);border:1px solid var(--border);padding:2rem}
+.about-card-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--ink);margin-bottom:1.25rem}
+.about-row{display:flex;align-items:baseline;justify-content:space-between;padding:0.65rem 0;border-bottom:1px solid var(--border);font-size:13px}
+.about-row:last-child{border-bottom:none}
+.about-row-label{color:var(--ink3);font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.06em}
+.about-row-val{color:var(--ink);font-weight:500;text-align:right;font-size:12.5px}
+
+.work-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem}
+.work-card{border:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;cursor:pointer;transition:border-color 0.25s,transform 0.2s;overflow:hidden}
+.work-card:hover{border-color:var(--green-mid);transform:translateY(-2px)}
+.work-card-top{padding:2.5rem 2rem 2rem;border-bottom:1px solid var(--border);flex:1}
+.work-card-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:1.2rem}
+.work-card h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--ink);margin-bottom:0.75rem;line-height:1.2}
+.work-card p{color:var(--ink3);font-size:13px;line-height:1.65;font-weight:300}
+.work-card-footer{padding:1.1rem 2rem;display:flex;justify-content:space-between;align-items:center}
+.card-arrow{color:var(--ink3);font-size:1rem;transition:transform 0.2s}
+.work-card:hover .card-arrow{transform:translate(3px,-3px)}
+.independent-mark{display:inline-flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple);background:var(--purple-light);border:1px solid rgba(90,58,138,0.25);padding:3px 10px;margin-bottom:1.2rem}
+
+/* ════════════════════════════════
+   TAB 2 — PANI RESEARCH
+════════════════════════════════ */
+.page-hero-pani{padding:8rem 3.5rem 5rem;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:end}
+.page-title-sm{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:var(--green-mid);margin-bottom:0.35rem}
+.page-title-lg{font-family:'Cormorant Garamond',serif;font-size:clamp(4.5rem,9vw,7.5rem);font-weight:300;color:var(--ink);line-height:0.9;letter-spacing:-0.01em;margin-bottom:1.2rem}
+.page-hero-desc{font-size:1rem;color:var(--ink2);font-weight:300;line-height:1.75}
+.independent-badge{display:inline-flex;align-items:center;gap:0.5rem;background:var(--purple-light);border:1px solid rgba(90,58,138,0.25);color:var(--purple);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;margin-bottom:1.5rem}
+.hindi-block{padding:2rem;background:var(--green-pale);border-left:2px solid var(--green-mid);margin-top:2rem}
+.hindi-word{font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--green);font-weight:400;margin-bottom:0.3rem}
+.hindi-note{font-size:13px;color:var(--ink3);font-weight:300}
+
+.acro-section{background:var(--off);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 0}
+.acro-inner{max-width:1160px;margin:0 auto;padding:0 3.5rem}
+.acro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:3rem;border:1px solid var(--border)}
+.acro-item{padding:2.5rem 2rem;border-right:1px solid var(--border);transition:background 0.25s}
+.acro-item:hover{background:var(--white)}
+.acro-item:last-child{border-right:none}
+.acro-letter{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:300;color:var(--green-light);line-height:1;margin-bottom:1rem;transition:color 0.25s}
+.acro-item:hover .acro-letter{color:var(--green)}
+.acro-word{font-size:1rem;font-weight:500;color:var(--ink);margin-bottom:0.5rem}
+.acro-desc{font-size:13px;color:var(--ink3);line-height:1.6;font-weight:300}
+
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.problem-text p{color:var(--ink2);font-size:1rem;line-height:1.75;margin-bottom:1.1rem;font-weight:300}
+.stat-blocks{display:flex;flex-direction:column;gap:1rem}
+.stat-block{padding:1.8rem 2rem;background:var(--off);border:1px solid var(--border);display:flex;gap:1.5rem;align-items:center}
+.stat-block-num{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;color:var(--green);line-height:1;flex-shrink:0;width:90px}
+.stat-block-txt{font-size:13px;color:var(--ink2);line-height:1.55;font-weight:300}
+.stat-block-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.2rem}
+
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:3rem;position:relative}
+.steps::before{content:'';position:absolute;top:2rem;left:10%;right:10%;height:1px;background:var(--border);z-index:0}
+.step{text-align:center;padding:0 1rem;position:relative;z-index:1}
+.step-circle{width:4rem;height:4rem;border-radius:50%;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--green)}
+.step-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:0.4rem}
+.step-desc{font-size:11.5px;color:var(--ink3);line-height:1.55;font-weight:300}
+
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem}
+.method-card{padding:2rem;border:1px solid var(--border);background:var(--white)}
+.method-card-head{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.method-icon{width:36px;height:36px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--green);flex-shrink:0}
+.method-card-title{font-size:14px;font-weight:500;color:var(--ink)}
+.method-card-text{font-size:13px;color:var(--ink2);line-height:1.65;font-weight:300}
+.formula-block{background:var(--off);border:1px solid var(--border);padding:1rem 1.25rem;margin-top:1rem;font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2);letter-spacing:0.03em}
+
+.results-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.result-card{padding:2.5rem 2rem;border:1px solid var(--border);text-align:center}
+.result-num{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:300;color:var(--green);line-height:1;display:block;margin-bottom:0.4rem}
+.result-unit{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:0.6rem}
+.result-desc{font-size:13px;color:var(--ink2);line-height:1.55;font-weight:300}
+
+.sensor-visual{background:var(--green);padding:4rem 3.5rem}
+.sensor-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.sensor-text-h{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--off);line-height:1.2;margin-bottom:1rem}
+.sensor-text-h em{font-style:italic;color:rgba(200,220,200,0.85)}
+.sensor-text p{color:rgba(240,240,235,0.65);font-weight:300;font-size:0.95rem;line-height:1.75}
+.sensor-specs{display:flex;flex-direction:column}
+.sensor-spec-row{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:13px}
+.sensor-spec-row:last-child{border-bottom:none}
+.spec-k{color:rgba(240,240,235,0.5);font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.06em}
+.spec-v{color:rgba(240,240,235,0.85)}
+
+/* ════════════════════════════════
+   TAB 3 — CGR INDIA
+════════════════════════════════ */
+.cgr-hero{background:var(--green);padding:8rem 3.5rem 6rem;text-align:center}
+.cgr-super{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(200,220,200,0.6);margin-bottom:0.5rem}
+.cgr-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,6vw,5rem);font-weight:300;color:rgba(240,240,235,0.95);line-height:1.1;margin-bottom:1rem}
+.cgr-sub{font-size:1rem;color:rgba(200,220,200,0.65);font-weight:300;max-width:520px;margin:0 auto;line-height:1.7}
+.cgr-badges{display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap}
+.cgr-badge{border:1px solid rgba(200,220,200,0.2);padding:0.45rem 1rem;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(200,220,200,0.6)}
+
+.about-cgr{display:grid;grid-template-columns:1.1fr 1fr;gap:5rem;align-items:start}
+.about-cgr-text p{color:var(--ink2);font-size:1rem;line-height:1.75;margin-bottom:1.1rem;font-weight:300}
+.cgr-info-card{border:1px solid var(--border)}
+.cgr-info-card-head{background:var(--green-pale);padding:1.2rem 1.5rem;border-bottom:1px solid var(--border)}
+.cgr-info-card-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--green)}
+.cgr-info-row{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1.5rem;border-bottom:1px solid var(--border);font-size:13px}
+.cgr-info-row:last-child{border-bottom:none}
+.cgr-info-key{color:var(--ink3);font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.06em}
+.cgr-info-val{color:var(--ink);font-size:12.5px;text-align:right}
+.cgr-info-val a{color:var(--green-mid);text-decoration:none}
+
+.contrib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.contrib-card{padding:2rem;border:1px solid var(--border);background:var(--white)}
+.contrib-card-icon{width:40px;height:40px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--green);margin-bottom:1.25rem}
+.contrib-card-title{font-size:1rem;font-weight:500;color:var(--ink);margin-bottom:0.6rem;line-height:1.3}
+.contrib-card-text{font-size:13px;color:var(--ink2);line-height:1.65;font-weight:300}
+
+.note-box{background:var(--off);border:1px solid var(--border);border-left:3px solid var(--purple);padding:1.5rem 2rem;margin-top:3rem;display:flex;gap:1.5rem;align-items:flex-start}
+.note-icon{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:0.1em;flex-shrink:0;padding-top:0.15rem}
+.note-text{font-size:13px;color:var(--ink2);line-height:1.65;font-weight:300}
+.note-link{color:var(--green-mid);text-decoration:none;cursor:pointer}
+.note-link:hover{text-decoration:underline}
+
+.events-list{margin-top:3rem;display:flex;flex-direction:column}
+.event-item{display:grid;grid-template-columns:120px 1fr;padding:1.5rem 0;border-bottom:1px solid var(--border)}
+.event-item:first-child{border-top:1px solid var(--border)}
+.event-date{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.06em;color:var(--ink3);padding-top:0.15rem}
+.event-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--ink);margin-bottom:0.3rem}
+.event-desc{font-size:13px;color:var(--ink2);line-height:1.55;font-weight:300}
+.event-tags{margin-top:0.6rem;display:flex;gap:0.4rem;flex-wrap:wrap}
+.etag{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--border);color:var(--ink3)}
+.etag-green{border-color:rgba(46,125,79,0.3);color:var(--green);background:var(--green-pale)}
+.etag-water{border-color:rgba(26,63,92,0.3);color:var(--water);background:var(--water-light)}
+.etag-amber{border-color:rgba(122,74,26,0.3);color:var(--amber);background:var(--amber-light)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  nav{padding:0 1.2rem}
+  .nav-tab{padding:0 1rem;font-size:10px}
+  .hero{padding:7rem 1.5rem 4rem}
+  .page-hero-pani{grid-template-columns:1fr;padding:7rem 1.5rem 3rem;gap:2rem}
+  .cgr-hero{padding:7rem 1.5rem 4rem}
+  .section{padding:4rem 1.5rem}
+  .acro-inner{padding:0 1.5rem}
+  .acro-grid{grid-template-columns:1fr 1fr}
+  .about-grid,.work-cards,.problem-grid,.method-grid,.results-row,.sensor-inner,.about-cgr,.contrib-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr;gap:2rem}.steps::before{display:none}
+  .stats-band{grid-template-columns:1fr 1fr}
+  .event-item{grid-template-columns:1fr;gap:0.3rem}
+  footer{flex-direction:column;gap:1.2rem;text-align:center;padding:2rem 1.5rem}
+}
+
+/* ════════════════════════════════
+   ADDED — PORTFOLIO RESTRUCTURE
+════════════════════════════════ */
+.work-cards-3{grid-template-columns:repeat(3,1fr)}
+.tag-teach{color:var(--amber);border-color:rgba(122,74,26,0.3);background:var(--amber-light)}
+
+.building-note{background:var(--purple-light);border:1px dashed rgba(90,58,138,0.4);border-left:3px solid var(--purple);padding:1.5rem 2rem;margin-top:2.5rem;display:flex;gap:1.25rem;align-items:flex-start}
+.bn-icon{font-family:'DM Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:0.1em;flex-shrink:0;padding-top:0.15rem}
+.bn-text{font-size:13px;color:var(--ink2);line-height:1.65;font-weight:300}
+.bn-text strong{color:var(--ink);font-weight:500}
+
+.checklist{list-style:none;margin-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:0.55rem}
+.checklist li{font-size:12.5px;color:var(--ink2);font-weight:300;padding-left:1.4rem;position:relative;line-height:1.5}
+.checklist li::before{content:'○';position:absolute;left:0;color:var(--purple);font-size:11px;top:1px}
+
+.mdp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem}
+.mdp-card{padding:1.8rem;border:1px solid var(--border);background:var(--white)}
+.mdp-key{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-mid);margin-bottom:0.8rem}
+.mdp-val{font-size:13px;color:var(--ink2);line-height:1.6;font-weight:300}
+
+.more-block{padding:5rem 0;max-width:1160px;margin:0 auto;padding-left:3.5rem;padding-right:3.5rem}
+.more-two{display:grid;grid-template-columns:1.15fr 1fr;gap:4rem;align-items:start}
+.more-body p{color:var(--ink2);font-size:1rem;line-height:1.75;margin-bottom:1.1rem;font-weight:300}
+.reflection{background:var(--off);border:1px solid var(--border);border-left:3px solid var(--green-mid);padding:1.5rem 1.75rem;font-size:13.5px;color:var(--ink2);line-height:1.7;font-weight:300;font-style:italic}
+.reflection-label{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-mid);font-style:normal;display:block;margin-bottom:0.6rem}
+.more-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:1.5rem}
+.link-inline{color:var(--green-mid);text-decoration:none;border-bottom:1px solid rgba(46,125,79,0.35)}
+.link-inline:hover{border-bottom-color:var(--green-mid)}
+
+.contact-row{display:flex;gap:2.5rem;flex-wrap:wrap;margin-top:2rem}
+.contact-item{display:flex;flex-direction:column;gap:0.2rem}
+.contact-k{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3)}
+.contact-v a,.contact-v{font-size:13.5px;color:var(--ink);text-decoration:none}
+.contact-v a:hover{color:var(--green-mid)}
+
+@media(max-width:860px){
+  .work-cards-3{grid-template-columns:1fr}
+  .mdp-grid{grid-template-columns:1fr 1fr}
+  .more-block{padding:4rem 1.5rem}
+  .more-two{grid-template-columns:1fr;gap:2rem}
+  .checklist{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand" onclick="switchTab('home')">Daksh <span>/ Portfolio</span></div>
+  <ul class="nav-tabs">
+    <li class="nav-tab active" data-tab="home" onclick="switchTab('home')">Home</li>
+    <li class="nav-tab" data-tab="paani" onclick="switchTab('paani')">Project Paani</li>
+    <li class="nav-tab" data-tab="research" onclick="switchTab('research')">IQL Research</li>
+    <li class="nav-tab" data-tab="patent" onclick="switchTab('patent')">Provisional Patent</li>
+    <li class="nav-tab" data-tab="more" onclick="switchTab('more')">Coding Projects &amp; More</li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════════
+     TAB 1 — HOME
+══════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-home">
+
+  <section class="hero">
+    <div class="hero-eyebrow">Student · Researcher · Builder</div>
+    <div class="hero-pani-top">Water · Agriculture · Machine Learning</div>
+    <h1 class="hero-pani-word">PANI</h1>
+    <div class="hero-pani-sub">
+      <em>पानी</em> — water in Hindi, Urdu &amp; many South Asian languages<br>
+      I'm Daksh. I build water-smart, AI-driven tools for small farmers — three of my main projects start with this one word.
+    </div>
+    <div class="pani-pills">
+      <div class="pani-pill"><span class="pani-letter">P</span>recise — right amount, place &amp; time</div>
+      <div class="pani-pill"><span class="pani-letter">A</span>utomated — sensors do the work</div>
+      <div class="pani-pill"><span class="pani-letter">N</span>eed-based — water only when crops need it</div>
+      <div class="pani-pill"><span class="pani-letter">I</span>ntelligent — smart decisions, every drop</div>
+    </div>
+    <div class="scroll-cue" onclick="document.getElementById('home-about').scrollIntoView({behavior:'smooth'})">
+      <div class="scroll-cue-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section" id="home-about">
+    <div class="mono-label">Who I am</div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2>A student working where <em>water meets machine learning</em></h2>
+        <p>I'm Daksh, a student at Oakridge International School, Hyderabad. Most of what I build circles one question: how do you help a small farmer use less water and grow more, without asking them to become an engineer?</p>
+        <p>That question runs through my flagship work — an independent research project applying offline reinforcement learning to irrigation scheduling, a provisional patent for a low-cost irrigation device, and <strong>Project Paani</strong>, where I teach the same ideas to children who'll inherit these fields.</p>
+        <p>Beyond irrigation, I've built a crop-price predictor and a sign-language-to-speech prototype, and I volunteer with <strong>CGR India</strong> (Council for Green Revolution) on sustainable agriculture. My PANI research is entirely my own and separate from CGR.</p>
+      </div>
+      <div class="about-card reveal d1">
+        <div class="about-card-title">At a glance</div>
+        <div class="about-row"><span class="about-row-label">School</span><span class="about-row-val">Oakridge International, Hyderabad</span></div>
+        <div class="about-row"><span class="about-row-label">Focus</span><span class="about-row-val">Smart Irrigation · AI / RL · Agri-Tech</span></div>
+        <div class="about-row"><span class="about-row-label">Research</span><span class="about-row-val">Offline RL (IQL) — independent</span></div>
+        <div class="about-row"><span class="about-row-label">Patent</span><span class="about-row-val">Provisional · smart irrigation device</span></div>
+        <div class="about-row"><span class="about-row-label">Teaching</span><span class="about-row-val">Project Paani — launching Aug 2026</span></div>
+        <div class="about-row"><span class="about-row-label">Location</span><span class="about-row-val">Hyderabad, India</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">Selected work</div>
+    <h2>What I've been <em>building</em></h2>
+    <div class="work-cards work-cards-3">
+      <div class="work-card reveal" onclick="switchTab('paani')">
+        <div class="work-card-top">
+          <div class="independent-mark" style="color:var(--amber);background:var(--amber-light);border-color:rgba(122,74,26,0.25)">◆ Community Initiative</div>
+          <div class="work-card-num">01 — Teaching</div>
+          <h3>Project Paani</h3>
+          <p>Teaching underprivileged children in Hyderabad how smart, need-based irrigation works — built with the Vivekananda Institute of Human Excellence and designed to sustain itself.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-teach">Community</span><span class="card-arrow">↗</span></div>
+      </div>
+      <div class="work-card reveal d1" onclick="switchTab('research')">
+        <div class="work-card-top">
+          <div class="independent-mark">★ Independent Research</div>
+          <div class="work-card-num">02 — Research</div>
+          <h3>IQL Research</h3>
+          <p>My PANI research: using Implicit Q-Learning — an offline reinforcement-learning method — to schedule irrigation as well as a human, without risky trial-and-error on real crops.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-self">Self-initiated</span><span class="card-arrow">↗</span></div>
+      </div>
+      <div class="work-card reveal d2" onclick="switchTab('patent')">
+        <div class="work-card-top">
+          <div class="work-card-num">03 — Hardware</div>
+          <h3>Provisional Patent</h3>
+          <p>A low-cost smart-irrigation device for small and marginal farms. A provisional application is in preparation — the cheap hardware that could deliver the scheduling logic.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-water">Filing in progress</span><span class="card-arrow">↗</span></div>
+      </div>
+      <div class="work-card reveal" onclick="switchTab('more')">
+        <div class="work-card-top">
+          <div class="work-card-num">04 — Machine Learning</div>
+          <h3>Crop Price Predictor</h3>
+          <p>A website that tried to predict crop prices from market data to help farmers decide when to sell — and taught me more about messy data than about markets.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-green">Python · ML</span><span class="card-arrow">↗</span></div>
+      </div>
+      <div class="work-card reveal d1" onclick="switchTab('more')">
+        <div class="work-card-top">
+          <div class="work-card-num">05 — Computer Vision</div>
+          <h3>Sign Language → Speech</h3>
+          <p>A computer-vision prototype that reads hand shapes and speaks them aloud, with a concept for camera glasses so it moves with the user. Negotium finalist.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-green">Assistive AI</span><span class="card-arrow">↗</span></div>
+      </div>
+      <div class="work-card reveal d2" onclick="switchTab('more')">
+        <div class="work-card-top">
+          <div class="work-card-num">06 — Volunteering</div>
+          <h3>CGR India</h3>
+          <p>Volunteering with the Council for Green Revolution — an NSE-listed environmental NGO — on sustainable agriculture and water conservation across Telangana.</p>
+        </div>
+        <div class="work-card-footer"><span class="tag tag-water">NGO Volunteer</span><span class="card-arrow">↗</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-band">
+    <div class="stat-cell"><span class="stat-big">~40%</span><span class="stat-desc">Water lost to flood irrigation</span></div>
+    <div class="stat-cell"><span class="stat-big">86M</span><span class="stat-desc">Small &amp; marginal farmers in India</span></div>
+    <div class="stat-cell"><span class="stat-big">IQL</span><span class="stat-desc">Offline-RL policy, no risky field trials</span></div>
+    <div class="stat-cell"><span class="stat-big">Aug '26</span><span class="stat-desc">Project Paani launches</span></div>
+  </div>
+
+  <footer>
+    <div class="footer-brand">Daksh — Portfolio</div>
+    <ul class="footer-tabs-nav">
+      <li><span onclick="switchTab('paani')">Project Paani</span></li>
+      <li><span onclick="switchTab('research')">IQL Research</span></li>
+      <li><span onclick="switchTab('patent')">Patent</span></li>
+      <li><span onclick="switchTab('more')">Coding &amp; More</span></li>
+    </ul>
+    <div class="footer-copy">Hyderabad, India · 2025–26</div>
+  </footer>
+
+</div><!-- /tab-home -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 2 — PROJECT PAANI (TEACHING)
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-paani">
+
+  <div class="page-hero-pani">
+    <div>
+      <div class="independent-badge" style="color:var(--amber);background:var(--amber-light);border-color:rgba(122,74,26,0.25)">◆ Community Initiative</div>
+      <div class="page-title-sm">Teaching Smart Irrigation</div>
+      <div class="page-title-lg">Project<br>Paani</div>
+      <p class="page-hero-desc">Project Paani takes the ideas behind my research out of the field and into a classroom — teaching underprivileged children in Hyderabad how smart, need-based irrigation works and why every drop counts. Built with the Vivekananda Institute of Human Excellence and designed to keep running on its own.</p>
+    </div>
+    <div>
+      <div class="hindi-block" style="border-left-color:var(--amber);background:var(--amber-light)">
+        <div class="hindi-word" style="color:var(--amber)">Paani vs PANI</div>
+        <div class="hindi-note"><strong>Project Paani</strong> is the teaching initiative. <strong>PANI</strong> is the research it's named after — same word for water, same idea, different audience.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">The idea</div>
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <h2>Water literacy for the people who'll <em>inherit the fields</em></h2>
+        <p>The farmers I studied irrigate by habit — not because they don't care, but because no one ever taught them another way. Project Paani starts one generation earlier.</p>
+        <p>By teaching children how plants actually use water — and letting them see it for themselves with simple sensors — smart, need-based irrigation stops feeling like a foreign technology and starts feeling like common sense.</p>
+        <p>The goal isn't to turn kids into engineers. It's to make "water only when the plant needs it" the default way they think about growing anything.</p>
+      </div>
+      <div class="stat-blocks reveal d1">
+        <div class="stat-block">
+          <div class="stat-block-num">◆</div>
+          <div class="stat-block-txt"><div class="stat-block-label">Partner</div>Vivekananda Institute of Human Excellence</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-num">Aug</div>
+          <div class="stat-block-txt"><div class="stat-block-label">Launch</div>Tentatively launching at the start of August 2026</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-num">↻</div>
+          <div class="stat-block-txt"><div class="stat-block-label">Model</div>Designed to be partially self-sustaining, not dependent on continuous outside funding</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">What the sessions cover</div>
+    <h2>From <em>a leaf to a schedule</em></h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-circle">1</div>
+        <div class="step-title">Where water goes</div>
+        <div class="step-desc">Flood watering vs need-based watering — and why most water never reaches the plant</div>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-circle">2</div>
+        <div class="step-title">Reading a plant</div>
+        <div class="step-desc">How soil moisture and growth stage tell you what a crop actually needs</div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-circle">3</div>
+        <div class="step-title">Sensor demo</div>
+        <div class="step-desc">A hands-on soil-moisture sensor the kids can watch respond to dry and wet soil</div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-circle">4</div>
+        <div class="step-title">Drip &amp; timing</div>
+        <div class="step-desc">The basics of drip delivery and watering on the plant's schedule, not the clock</div>
+      </div>
+      <div class="step reveal d4">
+        <div class="step-circle">5</div>
+        <div class="step-title">Carrying it home</div>
+        <div class="step-desc">Simple habits they can take back to a home garden or a family plot</div>
+      </div>
+    </div>
+    <div class="building-note reveal">
+      <span class="bn-icon">NOTE</span>
+      <div class="bn-text">The session outline above is the working curriculum design. The <strong>self-sustaining model</strong> — how the programme funds and runs itself after launch — is still being finalised with the Institute, and I'll add the specifics here once it's set.</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">Project Paani — Teaching Initiative</div>
+    <ul class="footer-tabs-nav">
+      <li><span onclick="switchTab('home')">Home</span></li>
+      <li><span onclick="switchTab('research')">IQL Research</span></li>
+      <li><span onclick="switchTab('patent')">Patent</span></li>
+      <li><span onclick="switchTab('more')">Coding &amp; More</span></li>
+    </ul>
+    <div class="footer-copy">Hyderabad, India · 2026</div>
+  </footer>
+
+</div><!-- /tab-paani -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 3 — IQL RESEARCH
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-research">
+
+  <div class="page-hero-pani">
+    <div>
+      <div class="independent-badge">★ Independent Research Project</div>
+      <div class="page-title-sm">PANI · Smart Irrigation · Offline RL</div>
+      <div class="page-title-lg">IQL</div>
+      <p class="page-hero-desc">PANI is my independent framework for precise, automated, need-based, intelligent irrigation. The question I'm working on now: can an offline reinforcement-learning agent — trained with <strong>Implicit Q-Learning</strong> — schedule irrigation as well as or better than a human, without ever taking a risky action on a real crop?</p>
+    </div>
+    <div>
+      <div class="hindi-block">
+        <div class="hindi-word">पानी</div>
+        <div class="hindi-note">water in Hindi, Urdu &amp; many South Asian languages</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="acro-section">
+    <div class="acro-inner">
+      <div class="mono-label">The framework</div>
+      <h2>What PANI <em>stands for</em></h2>
+      <div class="acro-grid">
+        <div class="acro-item reveal"><div class="acro-letter">P</div><div class="acro-word">Precise</div><div class="acro-desc">Right amount of water, right place, right time — grounded in ETc = ET₀ × Kc.</div></div>
+        <div class="acro-item reveal d1"><div class="acro-letter">A</div><div class="acro-word">Automated</div><div class="acro-desc">The policy decides and the pump acts. No manual guesswork, no fixed schedule.</div></div>
+        <div class="acro-item reveal d2"><div class="acro-letter">N</div><div class="acro-word">Need-based</div><div class="acro-desc">Water only when and where the crop needs it — driven by growth stage, not habit.</div></div>
+        <div class="acro-item reveal d3"><div class="acro-letter">I</div><div class="acro-word">Intelligent</div><div class="acro-desc">A learned policy weighs soil, weather and stage to make better calls over time.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">The problem I set out to solve</div>
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <h2>India's irrigation is <em>broken</em></h2>
+        <p>Small and marginal farmers in Telangana — those owning less than 2 hectares — irrigate largely by instinct, flooding fields on fixed schedules regardless of what the plant, the weather, or the soil is telling them.</p>
+        <p>The result: wasted water, soil degradation, waterlogging, and often lower yields. The very act of trying to help the crop ends up hurting it.</p>
+        <p>I wanted to know whether a learned scheduling policy could do better than habit — and whether it could be trained safely, without experimenting on a real season's crop.</p>
+      </div>
+      <div class="stat-blocks reveal d1">
+        <div class="stat-block"><div class="stat-block-num">89%</div><div class="stat-block-txt"><div class="stat-block-label">Irrigation type</div>Of Indian irrigation is still flood-based — the least efficient method available</div></div>
+        <div class="stat-block"><div class="stat-block-num">~40%</div><div class="stat-block-txt"><div class="stat-block-label">Water wasted</div>Of water applied in conventional irrigation never reaches the crop root zone</div></div>
+        <div class="stat-block"><div class="stat-block-num">86M</div><div class="stat-block-txt"><div class="stat-block-label">Small farmers</div>Marginal &amp; small farmers in India — the group precision tools have historically ignored</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">Why reinforcement learning</div>
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <h2>You can't afford to <em>experiment on a real field</em></h2>
+        <p>Standard (online) reinforcement learning learns by trial and error — it has to take bad actions to discover they're bad. On a crop, a season of bad waterings means a ruined harvest. That's not an acceptable way to learn.</p>
+        <p>So PANI uses <strong>offline RL</strong>: the agent learns entirely from a fixed dataset — episodes generated by a soil-water simulator plus any real field logs — and never explores on a live plant. The catch with offline RL is that a naïve agent becomes overconfident about actions it never actually saw in the data.</p>
+        <p><strong>Implicit Q-Learning (IQL)</strong> is built to avoid exactly that. It never queries the value of an unseen action, which makes it stable to train from logged data — the property that matters most when the cost of a mistake is a farmer's season.</p>
+      </div>
+      <div class="method-grid reveal d1" style="grid-template-columns:1fr;margin-top:0">
+        <div class="method-card">
+          <div class="method-card-head"><div class="method-icon">IQL</div><div class="method-card-title">How Implicit Q-Learning works</div></div>
+          <div class="method-card-text">IQL estimates a value function V as an upper expectile of the Q-values seen in the data, fits Q by temporal-difference learning against that V, and extracts the policy by advantage-weighted regression — cloning the good actions in the dataset more heavily than the bad ones. Because V is learned only over actions that appear in the data, the agent never over-estimates actions it has never tried.</div>
+          <div class="formula-block">V ← expectile_τ( Q(s,a) ) &nbsp;·&nbsp; π ∝ exp( β · (Q(s,a) − V(s)) )</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">Framing irrigation as a decision problem</div>
+    <h2>The <em>MDP</em></h2>
+    <div class="mdp-grid">
+      <div class="mdp-card reveal"><div class="mdp-key">State</div><div class="mdp-val">Soil moisture (VWC), ET₀ forecast, crop stage / Kc, days since last irrigation, recent weather.</div></div>
+      <div class="mdp-card reveal d1"><div class="mdp-key">Action</div><div class="mdp-val">How much to irrigate, and whether to irrigate at all this step — a volume or duration, or none.</div></div>
+      <div class="mdp-card reveal d2"><div class="mdp-key">Reward</div><div class="mdp-val">A yield proxy, minus water used, minus penalties for drought stress and waterlogging.</div></div>
+      <div class="mdp-card reveal d3"><div class="mdp-key">Data</div><div class="mdp-val">Episodes from a randomised soil-water simulator, plus real sensor logs from the field.</div></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">The physics the agent learns on</div>
+    <h2>The <em>agronomy underneath</em></h2>
+    <div class="method-grid">
+      <div class="method-card reveal">
+        <div class="method-card-head"><div class="method-icon">ET₀</div><div class="method-card-title">Reference Evapotranspiration</div></div>
+        <div class="method-card-text">ET₀ is the rate at which water evaporates from a reference crop under given weather. Computed with the FAO Penman-Monteith equation, it gives a daily baseline of atmospheric water demand — a core feature the agent reads at every step.</div>
+        <div class="formula-block">ET₀ = f(solar radiation, temp, humidity, wind)</div>
+      </div>
+      <div class="method-card reveal d1">
+        <div class="method-card-head"><div class="method-icon">Kc</div><div class="method-card-title">Crop Coefficients (Kc)</div></div>
+        <div class="method-card-text">Each crop's water need varies by stage — initial, development, mid-season, late. Multiplying ET₀ by the stage-specific Kc gives crop water need (ETc). FAO-56 Kc tables, calibrated for Telangana conditions, ground the simulator's dynamics.</div>
+        <div class="formula-block">ETc = ET₀ × Kc(stage)</div>
+      </div>
+      <div class="method-card reveal d2">
+        <div class="method-card-head"><div class="method-icon">IoT</div><div class="method-card-title">Smart Sensor Network</div></div>
+        <div class="method-card-text">Capacitive soil-moisture sensors measure volumetric water content at the root zone. Their readings both feed the state and generate the real logs used to check that the simulator — and the learned policy — behave sensibly in the field.</div>
+        <div class="formula-block">Irrigate if: VWC &lt; (FC − MAD × (FC − PWP))</div>
+      </div>
+      <div class="method-card reveal d3">
+        <div class="method-card-head"><div class="method-icon">S2R</div><div class="method-card-title">Sim-to-Real &amp; Baselines</div></div>
+        <div class="method-card-text">The simulator is domain-randomised across soil types, weather and crop stages so the policy transfers rather than overfits. I compare offline methods head-to-head — CQL (conservative), IQL (implicit), and H2O (dynamics-aware, hybrid) — against classic threshold scheduling.</div>
+        <div class="formula-block">Baselines: CQL · IQL · H2O · ETc-threshold</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">How it runs end-to-end</div>
+    <h2>From sensor to <em>sprinkler head</em></h2>
+    <div class="steps">
+      <div class="step reveal"><div class="step-circle">1</div><div class="step-title">Sense</div><div class="step-desc">Soil-moisture &amp; temperature sensors read the root zone; ET₀ pulled from weather data</div></div>
+      <div class="step reveal d1"><div class="step-circle">2</div><div class="step-title">State</div><div class="step-desc">Readings assembled into the agent's state: moisture, ET₀, Kc, time since last watering</div></div>
+      <div class="step reveal d2"><div class="step-circle">3</div><div class="step-title">Decide</div><div class="step-desc">The IQL policy chooses how much to irrigate — or to wait</div></div>
+      <div class="step reveal d3"><div class="step-circle">4</div><div class="step-title">Act</div><div class="step-desc">The pump runs for the chosen duration; the outcome is logged</div></div>
+      <div class="step reveal d4"><div class="step-circle">5</div><div class="step-title">Improve</div><div class="step-desc">New logs enrich the offline dataset the next policy is trained on</div></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">How I'm testing it</div>
+    <h2>What the study is <em>set up to show</em></h2>
+    <div class="results-row">
+      <div class="result-card reveal">
+        <span class="result-num">30–40%</span>
+        <span class="result-unit">Target water reduction</span>
+        <div class="result-desc">The efficiency the offline policy aims to reach versus conventional flood scheduling, at equal or better soil-moisture targets</div>
+      </div>
+      <div class="result-card reveal d1">
+        <span class="result-num">≥ base</span>
+        <span class="result-unit">Yield, maintained</span>
+        <div class="result-desc">Success means matching or beating baseline yield — consistent root-zone moisture without waterlogging stress</div>
+      </div>
+      <div class="result-card reveal d2">
+        <span class="result-num">In&nbsp;prog.</span>
+        <span class="result-unit">Greenhouse validation</span>
+        <div class="result-desc">A comparative greenhouse study pitting the offline-RL policy against ETc-threshold and fixed-schedule baselines</div>
+      </div>
+    </div>
+    <div class="building-note reveal">
+      <span class="bn-icon">STATUS</span>
+      <div class="bn-text">This is <strong>active research</strong>. The figures above are targets and study goals, not final validated results — the comparative greenhouse validation is ongoing. I'll replace them with measured numbers once the study is complete.</div>
+    </div>
+  </section>
+
+  <div class="sensor-visual">
+    <div class="sensor-inner">
+      <div class="sensor-text">
+        <div class="sensor-text-h">Hardware behind <em>the data</em></div>
+        <p>The simulator is only trustworthy if it matches reality. Each sensor deployment is calibrated to the soil texture and crop of its plot, and the logs it produces are what keep the learned policy honest.</p>
+      </div>
+      <div class="sensor-specs">
+        <div class="sensor-spec-row"><span class="spec-k">Sensor type</span><span class="spec-v">Capacitive soil moisture (VWC)</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">Measurement</span><span class="spec-v">Volumetric water content at root depth</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">ET₀ source</span><span class="spec-v">Local weather + Penman-Monteith</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">Kc tables</span><span class="spec-v">FAO-56, stage-calibrated for Telangana</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">Method</span><span class="spec-v">Offline RL — IQL (vs CQL, H2O)</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">Validation</span><span class="spec-v">Comparative greenhouse study · in progress</span></div>
+        <div class="sensor-spec-row"><span class="spec-k">Status</span><span class="spec-v">Independent research</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-brand">PANI · IQL — Independent Research</div>
+    <ul class="footer-tabs-nav">
+      <li><span onclick="switchTab('home')">Home</span></li>
+      <li><span onclick="switchTab('paani')">Project Paani</span></li>
+      <li><span onclick="switchTab('patent')">Patent</span></li>
+      <li><span onclick="switchTab('more')">Coding &amp; More</span></li>
+    </ul>
+    <div class="footer-copy">Hyderabad, India · 2025–26</div>
+  </footer>
+
+</div><!-- /tab-research -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 4 — PROVISIONAL PATENT
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-patent">
+
+  <div class="page-hero-pani">
+    <div>
+      <div class="independent-badge" style="color:var(--water);background:var(--water-light);border-color:rgba(26,63,92,0.25)">● Provisional Patent · In Preparation</div>
+      <div class="page-title-sm">Smart Irrigation Device</div>
+      <div class="page-title-lg">Patent</div>
+      <p class="page-hero-desc">I'm preparing a provisional patent application for a low-cost smart-irrigation device aimed at small and marginal farms. This page is a deliberately high-level overview — the detailed mechanism, figures, and claims will go up as the filing progresses.</p>
+    </div>
+    <div>
+      <div class="hindi-block" style="border-left-color:var(--water);background:var(--water-light)">
+        <div class="hindi-word" style="color:var(--water);font-size:1.8rem">The hardware side</div>
+        <div class="hindi-note">The research proves the scheduling logic. The device is the affordable hardware that could actually deliver it in the field.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">The device</div>
+    <div class="problem-grid">
+      <div class="problem-text reveal">
+        <h2>Precise watering, <em>without the price tag</em></h2>
+        <p>Most precision-irrigation systems assume a farmer can afford sensors, controllers, and power. The vast majority of small and marginal farmers can't — which is exactly why the group that needs efficient watering most is the one it reaches least.</p>
+        <p>The device I'm working on is aimed at that gap: a simple, low-cost way to deliver water precisely at the root zone, built for farms that can't support sensor-heavy setups.</p>
+        <p>I'm keeping the specifics off this public page for now — see the note below on why that matters before a filing.</p>
+      </div>
+      <div class="stat-blocks reveal d1">
+        <div class="stat-block"><div class="stat-block-num">●</div><div class="stat-block-txt"><div class="stat-block-label">Stage</div>Provisional application in preparation</div></div>
+        <div class="stat-block"><div class="stat-block-num">₹</div><div class="stat-block-txt"><div class="stat-block-label">Design goal</div>Low-cost, low-power, low-maintenance for small farms</div></div>
+        <div class="stat-block"><div class="stat-block-num">↔</div><div class="stat-block-txt"><div class="stat-block-label">Fits with</div>Pairs with the PANI / IQL scheduling research</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section class="section">
+    <div class="mono-label">Coming to this page</div>
+    <h2>What I'll <em>add next</em></h2>
+    <p style="color:var(--ink2);font-weight:300;max-width:640px;line-height:1.75">Once the provisional is further along, this page will fill out with the full story of the device:</p>
+    <ul class="checklist reveal">
+      <li>Operating principle &amp; mechanism, in plain language</li>
+      <li>A lay summary of what the claims cover</li>
+      <li>Patent-style figures &amp; diagrams</li>
+      <li>Prior-art positioning — what's different</li>
+      <li>Advantages specifically for small &amp; marginal farms</li>
+      <li>Filing status &amp; timeline</li>
+    </ul>
+    <div class="building-note reveal">
+      <span class="bn-icon">TO&nbsp;FILL</span>
+      <div class="bn-text"><strong>Send me the device details</strong> and I'll build this section out to match the rest of the site. One thing worth flagging first: publicly disclosing the specifics of an invention before your provisional is filed can complicate patent rights in some jurisdictions. It's usually safest to keep the public description high-level until the application is in — worth a quick check with whoever's advising you on the filing. (I'm not a lawyer, so treat that as a prompt to verify, not legal advice.)</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">Provisional Patent — Smart Irrigation Device</div>
+    <ul class="footer-tabs-nav">
+      <li><span onclick="switchTab('home')">Home</span></li>
+      <li><span onclick="switchTab('paani')">Project Paani</span></li>
+      <li><span onclick="switchTab('research')">IQL Research</span></li>
+      <li><span onclick="switchTab('more')">Coding &amp; More</span></li>
+    </ul>
+    <div class="footer-copy">Hyderabad, India · 2026</div>
+  </footer>
+
+</div><!-- /tab-patent -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 5 — MORE PROJECTS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-more">
+
+  <div class="cgr-hero" style="background:var(--ink)">
+    <div class="cgr-super" style="color:rgba(255,255,255,0.45)">Other Work</div>
+    <h1 class="cgr-title" style="color:rgba(250,250,248,0.95)">Coding projects &amp; more</h1>
+    <p class="cgr-sub" style="color:rgba(255,255,255,0.55)">Work beyond irrigation — a machine-learning experiment, an assistive-AI prototype, and the NGO I volunteer with.</p>
+  </div>
+
+  <!-- PROJECT A: CROP PRICE PREDICTOR -->
+  <div class="more-block">
+    <div class="more-head">
+      <span class="mh-num">01</span>
+      <div class="mono-label" style="margin-bottom:0">Machine Learning · Agri-Markets</div>
+    </div>
+    <div class="more-two">
+      <div class="more-body reveal">
+        <h2>Crop <em>price predictor</em></h2>
+        <p>I built a website to predict crop prices from agricultural market data — the idea being to help farmers decide when to sell. The first model produced a graph where a crop's predicted price spiked one day and collapsed the next, with nothing in the records to explain the swing.</p>
+        <p>My instinct was to make the algorithm more complex. The real problem was less flattering: the data had gaps, inconsistent reporting intervals, and too few reliable observations for some crops. I tried smoothing the abrupt jumps, changing the variables the model considered, and narrowing predictions to crops with fuller histories. Each fix corrected one distortion and revealed another.</p>
+        <p>The model is still imperfect — and that's the part that stuck with me.</p>
+        <div class="more-tags">
+          <span class="tag tag-green">Python</span><span class="tag tag-green">ML</span><span class="tag tag-water">Time-series</span>
+        </div>
+      </div>
+      <div class="reflection reveal d1">
+        <span class="reflection-label">What it taught me</span>
+        Computation can't remove uncertainty just because it turns the world into numbers. What it can do is help locate that uncertainty — in the world itself, in how the data was collected, or in an assumption hidden inside the model.
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- PROJECT B: SIGN LANGUAGE TO SPEECH -->
+  <div class="more-block">
+    <div class="more-head">
+      <span class="mh-num">02</span>
+      <div class="mono-label" style="margin-bottom:0">Computer Vision · Assistive Tech</div>
+    </div>
+    <div class="more-two">
+      <div class="more-body reveal">
+        <h2>Sign language <em>to speech</em></h2>
+        <p>The idea started in Rajapet, my native village in Telangana, during door-to-door outreach. I greeted a man who didn't respond — he was deaf, and the people around him communicated in basic gestures. I left thinking about how much a person can have to say, and how little gets across without a shared language.</p>
+        <p>After studying computer-vision models in Brown's "Using AI to Make AI" course, I built a prototype: using an American Sign Language alphabet dataset, it classifies hand shapes and turns the detected letters into speech. Then I noticed everything the demo concealed — it needed a laptop, it was sensitive to lighting, background and hand position, it only went one way, and an ASL alphabet classifier wasn't actually suited to the language or daily life of the man who inspired it.</p>
+        <p>That gap became the design challenge. I simplified the path from recognition to speech and sketched a concept for pairing the program with camera-equipped glasses, so it could move with the user instead of staying tied to a desk. With two teammates I developed the idea for Negotium, my school's entrepreneurship competition, and we reached the final round.</p>
+        <div class="more-tags">
+          <span class="tag tag-green">Computer Vision</span><span class="tag tag-green">Python</span><span class="tag tag-water">Assistive AI</span>
+          <a class="link-inline" href="https://github.com/DakshSudini" target="_blank" style="margin-left:0.3rem;font-size:11px">code on GitHub ↗</a>
+        </div>
+      </div>
+      <div class="reflection reveal d1">
+        <span class="reflection-label">What it taught me</span>
+        I used to think creativity meant producing an original idea. Now I see it as testing an idea against someone's reality, noticing where the two don't fit, and having the discipline to redesign rather than defend the first version.
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- PROJECT C: CGR INDIA -->
+  <div class="more-block">
+    <div class="more-head">
+      <span class="mh-num">03</span>
+      <div class="mono-label" style="margin-bottom:0">Volunteer · Environmental NGO</div>
+    </div>
+    <div class="about-cgr">
+      <div class="about-cgr-text reveal">
+        <h2>Council for <em>Green Revolution</em></h2>
+        <p>CGR India is an environmental NGO based in Hyderabad, working on sustainable agriculture, water conservation, and rural livelihoods across Telangana. They're listed on the <strong>NSE Social Stock Exchange</strong> — a level of transparency uncommon for organisations of their size.</p>
+        <p>I got involved through a shared interest in agricultural technology and water conservation: attending their events, engaging with their research, and contributing where I could — including work on their website. Their ground-level perspective helped shape my sense of what small farmers actually need.</p>
+        <div class="note-box reveal" style="margin-top:2rem">
+          <span class="note-icon">NOTE</span>
+          <div class="note-text">My PANI smart-irrigation research is entirely independent — designed, conducted, and analysed by me, and separate from CGR India. The two are related in spirit but distinct in origin. <span class="note-link" onclick="switchTab('research')">Read about the research →</span></div>
+        </div>
+      </div>
+      <div class="cgr-info-card reveal d1">
+        <div class="cgr-info-card-head"><div class="cgr-info-card-title">Organisation details</div></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Full name</span><span class="cgr-info-val">Council for Green Revolution</span></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Type</span><span class="cgr-info-val">Environmental NGO</span></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Location</span><span class="cgr-info-val">Hyderabad, Telangana</span></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Listed on</span><span class="cgr-info-val">NSE Social Stock Exchange</span></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Focus</span><span class="cgr-info-val">Sustainable Agriculture · Water</span></div>
+        <div class="cgr-info-row"><span class="cgr-info-key">Website</span><span class="cgr-info-val"><a href="https://cgrindia.org" target="_blank">cgrindia.org ↗</a></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- CONTACT -->
+  <section class="section">
+    <div class="mono-label">Get in touch</div>
+    <h2>Say <em>hello</em></h2>
+    <div class="contact-row reveal">
+      <div class="contact-item"><span class="contact-k">Email</span><span class="contact-v"><a href="mailto:dakshsoodini2009@gmail.com">dakshsoodini2009@gmail.com</a></span></div>
+      <div class="contact-item"><span class="contact-k">GitHub</span><span class="contact-v"><a href="https://github.com/DakshSudini" target="_blank">github.com/DakshSudini ↗</a></span></div>
+      <div class="contact-item"><span class="contact-k">Site</span><span class="contact-v"><a href="https://dakshsudini.github.io" target="_blank">dakshsudini.github.io ↗</a></span></div>
+      <div class="contact-item"><span class="contact-k">Based in</span><span class="contact-v">Hyderabad, India</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">Daksh — More Work</div>
+    <ul class="footer-tabs-nav">
+      <li><span onclick="switchTab('home')">Home</span></li>
+      <li><span onclick="switchTab('paani')">Project Paani</span></li>
+      <li><span onclick="switchTab('research')">IQL Research</span></li>
+      <li><span onclick="switchTab('patent')">Patent</span></li>
+    </ul>
+    <div class="footer-copy">Hyderabad, India · 2025–26</div>
+  </footer>
+
+</div><!-- /tab-more -->
+
+
+<script>
+function switchTab(name) {
+  // update panels
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  // update nav tabs
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
+  });
+  // scroll to top
+  window.scrollTo({top: 0, behavior: 'instant'});
+  // re-run reveal animations for newly visible tab
+  setTimeout(() => {
+    const panel = document.getElementById('tab-' + name);
+    panel.querySelectorAll('.reveal').forEach(el => el.classList.remove('vis'));
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+    }, { threshold: 0.1 });
+    panel.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  }, 50);
+}
+
+// Initial reveal for home tab
+const initObs = new IntersectionObserver(e => e.forEach(x => {
+  if (x.isIntersecting) x.target.classList.add('vis');
+}), { threshold: 0.1 });
+document.querySelectorAll('#tab-home .reveal').forEach(el => initObs.observe(el));
+</script>
+</body>
+</html>
