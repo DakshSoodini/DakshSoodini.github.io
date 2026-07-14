@@ -3,10 +3,10 @@
 > Student researcher at Oakridge International School, Hyderabad, India, working on smart irrigation for small and marginal farmers.
 
 ## Who
-- Name: Daksh Soodini (GitHub: DakshSudini)
+- Name: Daksh Soodini (GitHub: DakshSoodini)
 - Location: Hyderabad, Telangana, India
 - School: Oakridge International School (CBSE, Grades 11-12)
-- Contact: dakshsoodini2009@gmail.com · https://github.com/DakshSudini
+- Contact: dakshsoodini2009@gmail.com · https://github.com/DakshSoodini
 
 ## Work
 - PANI (IQL Research): independent research applying Implicit Q-Learning, an offline reinforcement-learning method, to irrigation scheduling for small farms in Telangana. Uses ETc = ET0 x Kc (FAO-56) agronomy, capacitive soil-moisture sensing, and a domain-randomised soil-water simulator; compared against CQL, H2O, and ETc-threshold baselines via a comparative greenhouse study.
@@ -16,4 +16,4 @@
 - Volunteering: Council for Green Revolution (CGR India), an NSE Social Stock Exchange-listed environmental NGO: contributed web development. The PANI research is independent of CGR.
 
 ## Pages
-- Portfolio (all sections on one page): https://dakshsudini.github.io/
+- Portfolio (all sections on one page): https://dakshsoodini.github.io/
