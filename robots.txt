@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dakshsudini.github.io/sitemap.xml
+Sitemap: https://dakshsoodini.github.io/sitemap.xml
