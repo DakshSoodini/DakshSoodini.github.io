@@ -10,7 +10,7 @@
 
 ## Work
 - PANI (IQL Research): independent research applying Implicit Q-Learning, an offline reinforcement-learning method, to irrigation scheduling for small farms in Telangana. Uses ETc = ET0 x Kc (FAO-56) agronomy, capacitive soil-moisture sensing, and a domain-randomised soil-water simulator; compared against CQL, H2O, and ETc-threshold baselines via a comparative greenhouse study.
-- Provisional Patent: a low-cost smart-irrigation device for small and marginal farms; provisional application in preparation.
+- Provisional Patent (filed June 2026): "Soil Tension-Activated Hydraulic Emitter with spring tunable crop specific threshold for demand driven irrigation". A fully passive emitter with no electronics or external power: a buried porous ceramic capsule (0.5-1.0 micron pore, 40-60 kPa air entry) senses soil matric potential, which deflects a silicone diaphragm and opens a spring-loaded valve. An interchangeable compression spring (0.3-0.5 N/mm) sets a crop-specific opening threshold. Being trialled in a polyhouse on mulched raised beds with cucumber.
 - Project Paani: teaching initiative with the Vivekananda Institute of Human Excellence, Hyderabad, teaching underprivileged children how need-based irrigation works. Launching August 2026.
 - Other projects: a crop-price prediction website (Python/ML) and a sign-language-to-speech computer-vision prototype (Negotium finalist).
 - Volunteering: Council for Green Revolution (CGR India), an NSE Social Stock Exchange-listed environmental NGO: contributed web development. The PANI research is independent of CGR.
