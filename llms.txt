@@ -9,11 +9,11 @@
 - Contact: dakshsoodini2009@gmail.com · https://github.com/DakshSoodini
 
 ## Work
-- PANI (IQL Research): independent research applying Implicit Q-Learning, an offline reinforcement-learning method, to irrigation scheduling for small farms in Telangana. Uses ETc = ET0 x Kc (FAO-56) agronomy, capacitive soil-moisture sensing, and a domain-randomised soil-water simulator; compared against CQL, H2O, and ETc-threshold baselines via a comparative greenhouse study.
+- PANI (IQL Research): research by Daksh, with guidance from Prof. Pradeep Varakantham of Singapore Management University, applying Implicit Q-Learning, an offline reinforcement-learning method, to irrigation scheduling for small farms in Telangana. Uses ETc = ET0 x Kc (FAO-56) agronomy, capacitive soil-moisture sensing, and a domain-randomised soil-water simulator; compared against CQL, H2O, and ETc-threshold baselines via a comparative greenhouse study.
 - Provisional Patent (filed June 2026): "Soil Tension-Activated Hydraulic Emitter with spring tunable crop specific threshold for demand driven irrigation". A fully passive emitter with no electronics or external power: a buried porous ceramic capsule (0.5-1.0 micron pore, 40-60 kPa air entry) senses soil matric potential, which deflects a silicone diaphragm and opens a spring-loaded valve. An interchangeable compression spring (0.3-0.5 N/mm) sets a crop-specific opening threshold. Being trialled in a polyhouse on mulched raised beds with cucumber.
-- Project Paani: teaching initiative with the Vivekananda Institute of Human Excellence, Hyderabad, teaching underprivileged children how need-based irrigation works. Launching August 2026.
+- Project Paani: a smart greenhouse on a government school campus where students learn water-efficient cultivation, organic farming and modern farming methods hands-on. Founded by Daksh with the help of the Vivekananda Institute of Human Excellence (VIHE), Khammam. The first greenhouse opened in September 2026 at Jawahar Navodaya Vidyalaya, Palair (Khammam district, Telangana). Over 600 students reached so far. Covered by more than ten newspapers, including Eenadu, V6 Velugu and Dhruva News, and by TV9 Telugu.
 - Other projects: a crop-price prediction website (Python/ML) and a sign-language-to-speech computer-vision prototype (Negotium finalist).
-- Volunteering: Council for Green Revolution (CGR India), an NSE Social Stock Exchange-listed environmental NGO: contributed web development. The PANI research is independent of CGR.
+- Volunteering: Council for Green Revolution (CGR India), an NSE Social Stock Exchange-listed environmental NGO: contributed web development.
 
 ## Pages
 - Portfolio (all sections on one page): https://dakshsoodini.github.io/
